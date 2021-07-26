@@ -1,17 +1,19 @@
 #ifndef ABC_CLOCK_H
 #define ABC_CLOCK_H
 
+#include <Arduino.h>
+#include "clock_state_high.h"
+
 class abc_clock
 {
 private:
-    unsigned long  m_pulse_start_mills;
-    bool           m_is_pulse_high;
+    abc_clock_state* m_clock_state;
+    bool             m_is_pulse_high;
 
 public:
-    abc_clock()
+    abc_clock() 
+        : m_clock_state( new clock_state_high() )
     {
-        m_is_pulse_high      = false;
-        m_pulse_start_mills  = 0;
     }
 
     virtual ~abc_clock() {}
@@ -30,11 +32,18 @@ public:
     // Accessors
     //
     unsigned long pulse_start_mills() { return this->m_pulse_start_mills; }
-    void pulse_start_mills( unsigned long pulse_mills ) { this->m_pulse_start_mills = pulse_mills; }
+    void turn_pulse_on();
+    void turn_pulse_off();
+    
+   
 
     // Override this
     //
     virtual void tick() = 0;
+
+private:
+    void pulse_start_mills( unsigned long pulse_mills ) { this->m_pulse_start_mills = pulse_mills; }
+    void mark_pulse_start_time(){ this->pulse_start_mills( millis() ); }
 
 private:
     abc_clock& operator=( const abc_clock& );
